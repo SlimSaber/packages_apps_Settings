@@ -56,6 +56,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,6 +65,8 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment implements In
     private static final String LOG_TAG = "DeviceInfoSettings";
     private static final String FILENAME_PROC_VERSION = "/proc/version";
     private static final String FILENAME_MSV = "/sys/board_properties/soc/msv";
+    private static final String FILENAME_PROC_MEMINFO = "/proc/meminfo";
+    private static final String FILENAME_PROC_CPUINFO = "/proc/cpuinfo";
 
     private static final String KEY_MANUAL = "manual";
     private static final String KEY_REGULATORY_INFO = "regulatory_info";
@@ -82,6 +85,8 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment implements In
     private static final String PROPERTY_EQUIPMENT_ID = "ro.ril.fccid";
     private static final String KEY_DEVICE_FEEDBACK = "device_feedback";
     private static final String KEY_SAFETY_LEGAL = "safetylegal";
+    private static final String KEY_DEVICE_CPU = "device_cpu";
+    private static final String KEY_DEVICE_MEMORY = "device_memory";
 
     private static final String KEY_MOD_VERSION = "mod_version";
 
@@ -144,6 +149,21 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment implements In
         // Remove selinux information if property is not present
         removePreferenceIfPropertyMissing(getPreferenceScreen(), KEY_SELINUX_STATUS,
                 PROPERTY_SELINUX_STATUS);
+
+        String cpuInfo = getCPUInfo();
+        String memInfo = getMemInfo();
+
+        if (cpuInfo != null) {
+            setStringSummary(KEY_DEVICE_CPU, cpuInfo);
+        } else {
+            getPreferenceScreen().removePreference(findPreference(KEY_DEVICE_CPU));
+        }
+
+        if (memInfo != null) {
+            setStringSummary(KEY_DEVICE_MEMORY, memInfo);
+        } else {
+            getPreferenceScreen().removePreference(findPreference(KEY_DEVICE_MEMORY));
+        }
 
         // Remove Safety information preference if PROPERTY_URL_SAFETYLEGAL is not set
         removePreferenceIfPropertyMissing(getPreferenceScreen(), KEY_SAFETY_LEGAL,
@@ -526,5 +546,62 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment implements In
             }
         };
 
+    private String getMemInfo() {
+        String result = null;
+
+        try {
+            /* /proc/meminfo entries follow this format:
+             * MemTotal:         362096 kB
+             * MemFree:           29144 kB
+             * Buffers:            5236 kB
+             * Cached:            81652 kB
+             */
+            String firstLine = readLine(FILENAME_PROC_MEMINFO);
+            if (firstLine != null) {
+                String parts[] = firstLine.split("\\s+");
+                if (parts.length == 3) {
+                    result = Long.parseLong(parts[1])/1024 + " MB";
+                }
+            }
+        } catch (IOException e) {}
+
+        return result;
+    }
+
+    private String getCPUInfo() {
+        String result = null;
+        String hardware = null;
+        String model = null;
+        final String PROC_HARDWARE_REGEX = "Hardware\\s*:\\s*(.*)$"; /* hardware string */
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(FILENAME_PROC_CPUINFO), 256);
+            String Line = reader.readLine();
+
+            while (Line != null && (hardware == null || model == null)) {
+                if (hardware == null && Line.startsWith("Hardware")) {
+                    Matcher m = Pattern.compile(PROC_HARDWARE_REGEX).matcher(Line);
+                    if (m.matches()) {
+                        hardware = m.group(1);
+                    }
+                } else if (model == null &&
+                        (Line.indexOf("model name") != -1 || Line.indexOf("Processor" ) != -1)) {
+                    model = Line.split(":")[1].trim();
+                }
+                Line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {}
+
+        if (hardware != null || model != null){
+            result  = (hardware != null) ? hardware : "";
+            result += (hardware != null && model != null) ? "\n" : "";
+            result += (model != null) ? model : "";
+        } else {
+            result = "Unknown";
+        }
+
+        return result;
+    }
 }
 

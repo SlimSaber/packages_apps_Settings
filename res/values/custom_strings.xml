@@ -139,4 +139,9 @@
     <string name="wifi_countrycode_tr">Turkey</string>
     <string name="wifi_countrycode_sg">Singapore</string>
     <string name="wifi_countrycode_br">Brazil</string>
+
+    <!-- About device screen, CPU and RAM info. -->
+    <string name="processor_info">Processor info</string>
+    <string name="mem_info">Memory</string>
+
 </resources>
