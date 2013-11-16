@@ -113,7 +113,13 @@
     <!-- Confirm device credentials screen -->
     <attr name="confirmDeviceCredentialsSideMargin" format="dimension" />
     <attr name="confirmDeviceCredentialsTopMargin" format="dimension" />
-
+    <declare-styleable name="IntervalSeekBar">
+        <attr name="mini" format="float" />
+        <attr name="maxi" format="float" />
+        <attr name="defaultValue" format="float" />
+        <attr name="digits" format="integer" />
+    </declare-styleable>
+        
     <declare-styleable name="DropDownPreference">
         <attr name="android:entries" />
         <attr name="android:entryValues" />
