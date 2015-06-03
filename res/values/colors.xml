@@ -104,4 +104,6 @@
 
     <color name="storage_summary_title_color">#ff607d8b</color>
 
+    <color name="theme_accent">#ff009688</color>
+
 </resources>
