@@ -1383,4 +1383,7 @@
     <string name="recent_app_sidebar_bg_color_title">Background color</string>
     <string name="recent_app_sidebar_scale_title">Size</string>
 
+    <!-- About phone screen, status item label  [CHAR LIMIT=60] -->
+    <string name="security_patch">Android security patch level</string>
+
 </resources>
