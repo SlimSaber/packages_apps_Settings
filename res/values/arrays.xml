@@ -1314,6 +1314,7 @@
     <integer-array name="battery_saver_trigger_values" translatable="false" >
         <item>0</item>
         <item>5</item>
+        <item>10</item>
         <item>15</item>
     </integer-array>
 
