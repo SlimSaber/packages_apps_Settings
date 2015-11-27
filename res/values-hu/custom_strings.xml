@@ -19,7 +19,7 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="mod_version">Omni verzió</string>
+  <string name="mod_version">SlimSaber verzió</string>
   <string name="mod_version_default">Ismeretlen</string>
   <string name="header_category_interface">Felhasználói felület</string>
   <string name="performance_settings">Teljesítmény</string>

@@ -19,7 +19,7 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="mod_version">Omni sürümü</string>
+  <string name="mod_version">SlimSaber sürümü</string>
   <string name="header_category_interface">Arayüz</string>
   <string name="performance_settings">Performans</string>
   <string name="advanced_settings_title">Gelişmiş</string>

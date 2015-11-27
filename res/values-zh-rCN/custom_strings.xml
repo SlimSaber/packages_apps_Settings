@@ -19,7 +19,7 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="mod_version">Omni 版本</string>
+  <string name="mod_version">SlimSaber 版本</string>
   <string name="mod_version_default">未知</string>
   <string name="header_category_interface">界面</string>
   <string name="performance_settings">性能</string>

@@ -19,7 +19,7 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="mod_version">Verze Omni</string>
+  <string name="mod_version">Verze SlimSaber</string>
   <string name="mod_version_default">Neznámý</string>
   <string name="header_category_interface">Rozhraní</string>
   <string name="performance_settings">Výkon</string>

@@ -19,7 +19,7 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="mod_version">Omni Version</string>
+  <string name="mod_version">SlimSaber Version</string>
   <string name="mod_version_default">Unbekannt</string>
   <string name="header_category_interface">Benutzeroberfläche</string>
   <string name="performance_settings">Leistung</string>

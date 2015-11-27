@@ -19,5 +19,5 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="mod_version">Omni-version</string>
+  <string name="mod_version">SlimSaber-version</string>
 </resources>

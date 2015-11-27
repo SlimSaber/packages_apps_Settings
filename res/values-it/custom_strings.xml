@@ -19,7 +19,7 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="mod_version">Versione Omni</string>
+  <string name="mod_version">Versione SlimSaber</string>
   <string name="header_category_interface">Interfaccia</string>
   <string name="advanced_settings_title">Avanzate</string>
   <string name="adb_notify_summary">Mostra una notifica quando il debug USB è connesso</string>
