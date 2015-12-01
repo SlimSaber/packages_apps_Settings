@@ -766,12 +766,26 @@ public class InstalledAppDetails extends AppInfoBase
     }
 
     public static void setupAppSnippet(View appSnippet, CharSequence label, Drawable icon,
-            CharSequence versionName, String packageName) {
+            CharSequence versionName, final String packageName) {
         LayoutInflater.from(appSnippet.getContext()).inflate(R.layout.widget_text_views,
                 (ViewGroup) appSnippet.findViewById(android.R.id.widget_frame));
 
         ImageView iconView = (ImageView) appSnippet.findViewById(android.R.id.icon);
         iconView.setImageDrawable(icon);
+
+        // Clicking on application icon opens application.
+        iconView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PackageManager pm = v.getContext().getPackageManager();
+                Intent intent = pm.getLaunchIntentForPackage(packageName);
+                if (intent == null) {
+                    return;
+                }
+                v.getContext().startActivity(intent);
+            }
+        });
+
         // Set application name.
         TextView labelView = (TextView) appSnippet.findViewById(android.R.id.title);
         labelView.setText(label);
