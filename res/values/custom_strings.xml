@@ -117,8 +117,6 @@
     <!-- Bluetooth settings. A checkbox to set if we should accept all the file types regardless of their presence in MIME type whitelist -->
     <string name="bluetooth_accept_all_files">Accept all file types</string>
 
-    <string name="system_ui_tuner">System UI Tuner</string>
-
     <!-- app notifications hide on lockscreen -->
     <string name="app_notification_no_keyguard_title">Hide when locked</string>
     <string name="app_notification_no_keyguard_summary">Hide notifications of this app when device is locked</string>
