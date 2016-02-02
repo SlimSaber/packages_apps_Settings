@@ -144,4 +144,8 @@
     <string name="processor_info">Processor info</string>
     <string name="mem_info">Memory</string>
 
+    <!-- Heads-up notification -->
+    <string name="heads_up_notifications_enabled_title">Allow peeking</string>
+    <string name="heads_up_notifications_enabled_summary">Allow or disable peeking for all notifications</string>
+
 </resources>
