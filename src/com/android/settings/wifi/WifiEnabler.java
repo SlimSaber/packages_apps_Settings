@@ -27,25 +27,26 @@ import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
 import com.android.internal.logging.MetricsLogger;
 import com.android.settings.R;
-import com.android.settings.dashboard.GenericSwitchToggle;
 import com.android.settings.search.Index;
 import com.android.settings.widget.SwitchBar;
 import com.android.settingslib.WirelessUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class WifiEnabler extends GenericSwitchToggle  {
+public class WifiEnabler implements SwitchBar.OnSwitchChangeListener  {
+    private Context mContext;
+    private SwitchBar mSwitchBar;
+    private boolean mListeningToOnSwitchChange = false;
     private AtomicBoolean mConnected = new AtomicBoolean(false);
 
-    private WifiManager mWifiManager;
-    private IntentFilter mIntentFilter;
-
+    private final WifiManager mWifiManager;
+    private boolean mStateMachineEvent;
+    private final IntentFilter mIntentFilter;
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -84,71 +85,76 @@ public class WifiEnabler extends GenericSwitchToggle  {
     };
 
     public WifiEnabler(Context context, SwitchBar switchBar) {
-        super(context, switchBar);
+        mContext = context;
+        mSwitchBar = switchBar;
 
-        init();
-        setupSwitches();
-    }
-
-    public WifiEnabler(Context context, Switch switch_) {
-        super(context, switch_);
-
-        init();
-        setupSwitches();
-    }
-
-    private void init() {
-        mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+        mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
         mIntentFilter = new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
         // The order matters! We really should not depend on this. :(
         mIntentFilter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
         mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+
+        setupSwitchBar();
     }
 
-    private void setupSwitches() {
+    public void setupSwitchBar() {
         final int state = mWifiManager.getWifiState();
         handleWifiStateChanged(state);
-        if (mSwitchBar != null) {
-            mSwitchBar.show();
+        if (!mListeningToOnSwitchChange) {
+            mSwitchBar.addOnSwitchChangeListener(this);
+            mListeningToOnSwitchChange = true;
+        }
+        mSwitchBar.show();
+    }
+
+    public void teardownSwitchBar() {
+        if (mListeningToOnSwitchChange) {
+            mSwitchBar.removeOnSwitchChangeListener(this);
+            mListeningToOnSwitchChange = false;
+        }
+        mSwitchBar.hide();
+    }
+
+    public void resume(Context context) {
+        mContext = context;
+        // Wi-Fi state is sticky, so just let the receiver update UI
+        mContext.registerReceiver(mReceiver, mIntentFilter);
+        if (!mListeningToOnSwitchChange) {
+            mSwitchBar.addOnSwitchChangeListener(this);
+            mListeningToOnSwitchChange = true;
         }
     }
 
-
-    @Override
-    public void resume(Context context) {
-        super.resume(context);
-        // Wi-Fi state is sticky, so just let the receiver update UI
-        mContext.registerReceiver(mReceiver, mIntentFilter);
-    }
-
-    @Override
     public void pause() {
-        super.pause();
         mContext.unregisterReceiver(mReceiver);
+        if (mListeningToOnSwitchChange) {
+            mSwitchBar.removeOnSwitchChangeListener(this);
+            mListeningToOnSwitchChange = false;
+        }
     }
 
     private void handleWifiStateChanged(int state) {
         switch (state) {
             case WifiManager.WIFI_STATE_ENABLING:
-                setEnabled(false);
+                mSwitchBar.setEnabled(false);
                 break;
             case WifiManager.WIFI_STATE_ENABLED:
-                setChecked(true);
-                setEnabled(true);
+                setSwitchBarChecked(true);
+                mSwitchBar.setEnabled(true);
                 updateSearchIndex(true);
                 break;
             case WifiManager.WIFI_STATE_DISABLING:
-                setEnabled(false);
+                mSwitchBar.setEnabled(false);
                 break;
             case WifiManager.WIFI_STATE_DISABLED:
-                setChecked(false);
-                setEnabled(true);
+                setSwitchBarChecked(false);
+                mSwitchBar.setEnabled(true);
                 updateSearchIndex(false);
                 break;
             default:
-                setChecked(false);
-                setEnabled(false);
+                setSwitchBarChecked(false);
+                mSwitchBar.setEnabled(true);
                 updateSearchIndex(false);
         }
     }
@@ -162,6 +168,11 @@ public class WifiEnabler extends GenericSwitchToggle  {
         mHandler.sendMessage(msg);
     }
 
+    private void setSwitchBarChecked(boolean checked) {
+        mStateMachineEvent = true;
+        mSwitchBar.setChecked(checked);
+        mStateMachineEvent = false;
+    }
 
     private void handleStateChanged(@SuppressWarnings("unused") NetworkInfo.DetailedState state) {
         // After the refactoring from a CheckBoxPreference to a Switch, this method is useless since
@@ -188,7 +199,8 @@ public class WifiEnabler extends GenericSwitchToggle  {
         // Show toast message if Wi-Fi is not allowed in airplane mode
         if (isChecked && !WirelessUtils.isRadioAllowed(mContext, Settings.Global.RADIO_WIFI)) {
             Toast.makeText(mContext, R.string.wifi_in_airplane_mode, Toast.LENGTH_SHORT).show();
-            setChecked(false);
+            // Reset switch to off. No infinite check/listenenr loop.
+            mSwitchBar.setChecked(false);
             return;
         }
 
@@ -202,14 +214,8 @@ public class WifiEnabler extends GenericSwitchToggle  {
                 isChecked ? MetricsLogger.ACTION_WIFI_ON : MetricsLogger.ACTION_WIFI_OFF);
         if (!mWifiManager.setWifiEnabled(isChecked)) {
             // Error
-            setEnabled(true);
-
+            mSwitchBar.setEnabled(true);
             Toast.makeText(mContext, R.string.wifi_error, Toast.LENGTH_SHORT).show();
         }
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        super.onCheckedChanged(buttonView, isChecked);
     }
 }

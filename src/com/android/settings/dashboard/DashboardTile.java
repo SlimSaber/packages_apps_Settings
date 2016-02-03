@@ -81,13 +81,6 @@ public class DashboardTile implements Parcelable {
     public String iconPkg;
 
     /**
-     * Optional location of a class which implements GenericSwitchTile
-     * to be displayed on the dashboard.
-     * @attr ref R.styleable#DashbaordTile_switchClass
-     */
-    public String switchControl;
-
-    /**
      * Full class name of the fragment to display when this tile is
      * selected.
      * @attr ref android.R.styleable#PreferenceHeader_fragment
@@ -171,12 +164,6 @@ public class DashboardTile implements Parcelable {
             userHandle.get(i).writeToParcel(dest, flags);
         }
         dest.writeBundle(extras);
-        if (switchControl != null) {
-            dest.writeInt(1);
-            dest.writeString(switchControl);
-        } else {
-            dest.writeInt(0);
-        }
     }
 
     public void readFromParcel(Parcel in) {
@@ -197,9 +184,6 @@ public class DashboardTile implements Parcelable {
             userHandle.add(UserHandle.CREATOR.createFromParcel(in));
         }
         extras = in.readBundle();
-        if (in.readInt() != 0) {
-            switchControl = in.readString();
-        }
     }
 
     DashboardTile(Parcel in) {

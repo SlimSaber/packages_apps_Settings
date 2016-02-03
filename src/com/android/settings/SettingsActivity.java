@@ -425,7 +425,6 @@ public class SettingsActivity extends Activity
     private boolean mSearchMenuItemExpanded = false;
     private SearchResultsSummary mSearchResultsFragment;
     private String mSearchQuery;
-    private UserManager mUm;
 
     // Categories
     private ArrayList<DashboardCategory> mCategories = new ArrayList<DashboardCategory>();
@@ -571,8 +570,6 @@ public class SettingsActivity extends Activity
         if (intent.hasExtra(EXTRA_UI_OPTIONS)) {
             getWindow().setUiOptions(intent.getIntExtra(EXTRA_UI_OPTIONS, 0));
         }
-        
-        mUm = (UserManager) getSystemService(Context.USER_SERVICE);
 
         mDevelopmentPreferences = getSharedPreferences(DevelopmentSettings.PREF_FILE,
                 Context.MODE_PRIVATE);
@@ -1187,11 +1184,6 @@ public class SettingsActivity extends Activity
                                     com.android.internal.R.styleable.PreferenceHeader_fragment);
                             sa.recycle();
 
-                            sa = context.obtainStyledAttributes(attrs, R.styleable.DashboardTile);
-                            tile.switchControl = sa.getString(
-                                    R.styleable.DashboardTile_switchClass);
-                            sa.recycle();
-
                             if (curBundle == null) {
                                 curBundle = new Bundle();
                             }
@@ -1255,8 +1247,6 @@ public class SettingsActivity extends Activity
         final boolean showDev = mDevelopmentPreferences.getBoolean(
                 DevelopmentSettings.PREF_SHOW,
                 android.os.Build.TYPE.equals("eng"));
-        
-        final boolean isSecondaryUser =  UserHandle.myUserId() != UserHandle.USER_OWNER;    
 
         final UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
 
@@ -1280,12 +1270,6 @@ public class SettingsActivity extends Activity
                 } else if (id == R.id.wifi_settings) {
                     // Remove WiFi Settings if WiFi service is not available.
                     if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI)) {
-                        removeTile = true;
-                    }
-                } else if (id == R.id.mobile_networks) {
-                    // Remove Mobile Data Settings if Mobile network is not available (wifi only).
-                    if (isSecondaryUser || Utils.isWifiOnly(getApplicationContext())
-                || mUm.hasUserRestriction(UserManager.DISALLOW_CONFIG_MOBILE_NETWORKS)) {
                         removeTile = true;
                     }
                 } else if (id == R.id.bluetooth_settings) {
